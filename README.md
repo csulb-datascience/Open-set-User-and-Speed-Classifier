@@ -8,11 +8,9 @@ For the user classification network an ensemble model consisting of CNN, RNN and
 
 The framework is tested on various settings, and it shows outstanding performance and accuracy for gait recognition and speed identification was used as the metric for evaluation. The Ensemble model and CNN model are trained using a very small dataset, which makes it efficient to use even with small, labelled training dataset. The few-shot learning utilized for open-set classification require only few gait cycles from each subject to train the decision function, making the classifier work precisely even with less training data, hence solving a major issue of the need of labelled training data.
 
-The open-set classifier indicates high accuracy of over 95\% for open-set classification of gait recognition, while around 98\% accuracy for speed identification, while the closed-set classifier shows accuracy of 99\% for both user and speed identification. Further research could be done to derive useful interoperability insight using XAI techniques like LRP (Layer-wise Propagation).
-
 
 # Requirements
-Some of the main packages used for this project are Tensorflow-gpu 1.14, Keras 2.2.4, innvestigate 1.08, and scikit-learn 0.23.2.
+Some of the main packages used for this project are pytprch 1.12.1, scipy 1.7.3, and scikit-learn 1.0.2.
 It is recommended to create a new environment and install the packages listed in requirements.txt:
 ```
 pip install -r requirements.txt
