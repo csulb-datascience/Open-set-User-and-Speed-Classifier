@@ -25,9 +25,9 @@ As is shown in the following image, the data was collected from 14 subjects and 
 
 
 # Processes
-The implementation is defined in the colab notebook as the following steps:
+The implementation is defined in the jupyter notebook as the following steps:
 
-<b>For User Identification<b>
+<b>For User Identification</b>
 
  - The data is first loaded and split into train, known-test and unknown-test set.
  
@@ -37,12 +37,13 @@ The implementation is defined in the colab notebook as the following steps:
 
  - Now, using the remaining data from known-test set and unknown-test set, the accuracy of the model is tested and reported.
 
-<b>For User Identification<b>
+<b>For User Identification</b>
 
  - Using the input dataset, a random subject is selected to train a CNN model to classify different speeds of the user. 
 
  - All the data from remaining 15 subjects is used for testing, and accuracy is calculated and reported for the predicted outputs.
 
+The models used are defined in model_class.py, while the modelUtils.py contains the helper functions for training, testing and evaluation of the models.
 
 # Evaluation
 
