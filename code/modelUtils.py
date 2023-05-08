@@ -282,6 +282,86 @@ def cal_accuracy_cosine(feat_model_large, centroid, y_true, theta):
 def euc_dist(point1, point2):
     return np.linalg.norm(point1 - point2)
 
+def model_train_eval(model, opt, num_classes, file_name, x_train_large, y1_train_large, x_ktest_small, y1_ktest_small, x_ktest_large, y1_ktest_large):
+    train_l_dataloader_p = convert_to_TensorDataloader(x_train_large, y1_train_large, opt.train_batch_size, opt.num_workers)
+    test_l_dataloader_p = convert_to_TensorDataloader(x_ktest_large, y1_ktest_large, 700, opt.num_workers)
+    
+    p_model = train(model, train_l_dataloader_p, num_classes = 6, opt = opt)
+    torch.cuda.empty_cache()
+    p_model.eval()
+    centroid = []
+    feats = []
+    labels = []
+    with torch.no_grad():
+        for x in x_ktest_small:
+            feat_model_ks = p_model(x)
+            centroid.append(torch.mean(feat_model_ks, dim=0))
+    
+    centroid = torch.Tensor(torch.stack(centroid))
+    
+    with torch.no_grad():
+        for ii, data in enumerate(test_l_dataloader_p):
+            data_input, label = data
+            feat_model_kl = p_model(data_input)
+            feats.append(feat_model_kl)
+            labels.append(label)
+    
+    feats = torch.cat(feats, dim = 0)
+    labels = torch.cat(labels, dim = 0)
+    print(feats.shape, labels.shape)
+    acc_cos_outp = cal_accuracy_cosine(feats.cpu().detach().numpy(), centroid.cpu().detach().numpy(), labels.cpu().detach().numpy(), opt.cos_theta)
+    acc_euc_outp = cal_accuracy_euc(feats.cpu().detach().numpy(), centroid.cpu().detach().numpy(), labels.cpu().detach().numpy(), opt.euc_theta)
+    
+    
+    plot_tsne(feats.cpu().detach().numpy(), labels.numpy(), "Large test known person data T-SNE projection", 5)
+    
+    print('Range of cosine and eucledian metric')   
+    print(min(acc_cos_outp['y_max']), max(acc_cos_outp['y_max']), min(acc_euc_outp['y_max']), max(acc_euc_outp['y_max']))
+    
+    fileData = 'ModelN/'+file_name+'.pkl'
+    fileModel = 'ModelN/'+file_name+'.pt'
+    torch.save(model, fileModel)
+    import pickle 
+    with open(fileData , 'wb') as f:
+        pickle.dump((acc_cos_outp, acc_euc_outp), f, protocol = 4)
+
+
+def model_eval_user(model, x_ktest_large, y1_ktest_large):
+    test_l_dataloader_p = convert_to_TensorDataloader(x_ktest_large, y1_ktest_large, 500, 4)
+    torch.cuda.empty_cache()
+    model.eval()
+    centroid = []
+    feats = []
+    labels = []
+    with torch.no_grad():
+        for ii, data in enumerate(test_l_dataloader_p):
+            data_input, label = data
+            feat_model_kl = model(data_input)
+            feats.append(feat_model_kl)
+            labels.append(label)
+    
+    feats = torch.cat(feats, dim = 0)
+    labels = torch.cat(labels, dim = 0)
+    plot_tsne(feats.cpu().detach().numpy(), labels.numpy(), "Large test known person data T-SNE projection", 7)
+
+def model_eval_speed(model, x_ktest_large, y):
+    test_l_dataloader_p = convert_to_TensorDataloader(x_ktest_large, y, 500, 4)
+    torch.cuda.empty_cache()
+    model.eval()
+    centroid = []
+    feats = []
+    labels = []
+    with torch.no_grad():
+        for ii, data in enumerate(test_l_dataloader_p):
+            data_input, label = data
+            feat_model_kl = model(data_input)
+            feats.append(feat_model_kl)
+            labels.append(label)
+    
+    feats = torch.cat(feats, dim = 0)
+    labels = torch.cat(labels, dim = 0)
+    plot_tsne(feats.cpu().detach().numpy(), labels.numpy(), "Large test known speed data T-SNE projection", 5)
+
 def cal_accuracy_euc(feat_model_large, centroid, y_true, theta):
     y_pred = []
     y_max = []
